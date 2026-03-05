@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 
 <head>
 
+<meta charset="UTF-8">
 <title>Radar de Ofertas Brasil</title>
 
-<meta name="description" content="Busque produtos baratos e promoções do Mercado Livre e Amazon">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Busque ofertas baratas do Mercado Livre e Amazon">
 
 <style>
 
@@ -21,12 +20,10 @@ text-align:center;
 header{
 background:#ffcc00;
 padding:20px;
-font-size:28px;
-font-weight:bold;
 }
 
-.busca{
-margin:20px;
+h1{
+margin:0;
 }
 
 input{
@@ -38,24 +35,46 @@ font-size:16px;
 button{
 padding:10px 20px;
 font-size:16px;
-background:#0084ff;
+background:#2e7dff;
 color:white;
 border:none;
-border-radius:5px;
 cursor:pointer;
 }
 
-.produto{
-background:white;
-padding:15px;
-margin:20px auto;
-width:300px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
+#produtos{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
+padding:20px;
 }
 
-img{
-width:200px;
+.card{
+background:white;
+padding:15px;
+border-radius:10px;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.card img{
+width:100%;
+height:200px;
+object-fit:contain;
+}
+
+.preco{
+font-size:20px;
+color:green;
+font-weight:bold;
+}
+
+.oferta{
+display:inline-block;
+margin-top:10px;
+background:#00a650;
+color:white;
+padding:8px 15px;
+text-decoration:none;
+border-radius:5px;
 }
 
 </style>
@@ -65,111 +84,64 @@ width:200px;
 <body>
 
 <header>
-Radar de Ofertas Brasil
+
+<h1>Radar de Ofertas Brasil</h1>
+
+<br>
+
+<input id="busca" placeholder="Buscar produto...">
+
+<button onclick="buscar()">Buscar</button>
+
 </header>
 
-<div class="busca">
-
-<h2>Buscar produtos</h2>
-
-<input id="busca" placeholder="Digite o produto">
-
-<button onclick="buscarProduto()">Buscar</button>
-
-</div>
-
-<div id="resultados"></div>
-
-<h2>Ofertas encontradas automaticamente</h2>
-
-<div id="ofertas"></div>
+<div id="produtos"></div>
 
 <script>
 
-async function buscarProduto(){
+async function buscar(){
 
-let busca = document.getElementById("busca").value
+let termo = document.getElementById("busca").value;
 
-let resposta = await fetch("https://api.mercadolibre.com/sites/MLB/search?q=" + busca)
+let url = "https://api.mercadolibre.com/sites/MLB/search?q=" + termo;
 
-let dados = await resposta.json()
+let resposta = await fetch(url);
 
-let area = document.getElementById("resultados")
+let dados = await resposta.json();
 
-area.innerHTML = ""
+let produtos = dados.results;
 
-dados.results.slice(0,10).forEach(produto => {
+let html = "";
 
-area.innerHTML += `
+produtos.forEach(produto => {
 
-<div class="produto">
+let linkAfiliado = "https://mercadolivre.com/sec/mian7622039?url=" + produto.permalink;
 
-<img src="${produto.thumbnail}">
+html += `
 
-<h3>${produto.title}</h3>
-
-<p><b>R$ ${produto.price}</b></p>
-
-<a href="https://mercadolivre.com/sec/mian7622039?url=${produto.permalink}" target="_blank">
-
-<button>Ver oferta</button>
-
-</a>
-
-</div>
-
-`
-
-})
-
-}
-
-async function ofertasAutomaticas(){
-
-let lista = ["iphone","notebook","tv","tenis","perfume"]
-
-let area = document.getElementById("ofertas")
-
-area.innerHTML = ""
-
-for(let item of lista){
-
-let resposta = await fetch("https://api.mercadolibre.com/sites/MLB/search?q=" + item)
-
-let dados = await resposta.json()
-
-dados.results.slice(0,2).forEach(produto => {
-
-area.innerHTML += `
-
-<div class="produto">
+<div class="card">
 
 <img src="${produto.thumbnail}">
 
 <h3>${produto.title}</h3>
 
-<p><b>R$ ${produto.price}</b></p>
+<p class="preco">R$ ${produto.price}</p>
 
-<a href="https://mercadolivre.com/sec/mian7622039?url=${produto.permalink}" target="_blank">
-
-<button>Ver oferta</button>
-
+<a class="oferta" href="${linkAfiliado}" target="_blank">
+Ver Oferta
 </a>
 
 </div>
 
-`
+`;
 
-})
+});
+
+document.getElementById("produtos").innerHTML = html;
 
 }
-
-}
-
-ofertasAutomaticas()
 
 </script>
 
 </body>
-</html>
-<!-- atualização do site -->
+</html> do site -->
