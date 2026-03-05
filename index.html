@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <title>Radar de Ofertas Brasil</title>
 
-<meta name="description" content="Ofertas do Mercado Livre e Amazon">
+<meta name="description" content="Busque produtos baratos e promoções do Mercado Livre e Amazon">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 
 body{
-font-family: Arial;
-background:#f5f5f5;
+font-family:Arial;
+background:#f2f2f2;
+margin:0;
 text-align:center;
 }
 
@@ -21,20 +25,37 @@ font-size:28px;
 font-weight:bold;
 }
 
-.produto{
-background:white;
-padding:20px;
+.busca{
 margin:20px;
-border-radius:10px;
+}
+
+input{
+padding:10px;
+width:250px;
+font-size:16px;
 }
 
 button{
+padding:10px 20px;
+font-size:16px;
 background:#0084ff;
 color:white;
 border:none;
-padding:10px 20px;
 border-radius:5px;
-font-size:16px;
+cursor:pointer;
+}
+
+.produto{
+background:white;
+padding:15px;
+margin:20px auto;
+width:300px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+img{
+width:200px;
 }
 
 </style>
@@ -47,29 +68,107 @@ font-size:16px;
 Radar de Ofertas Brasil
 </header>
 
+<div class="busca">
+
+<h2>Buscar produtos</h2>
+
+<input id="busca" placeholder="Digite o produto">
+
+<button onclick="buscarProduto()">Buscar</button>
+
+</div>
+
+<div id="resultados"></div>
+
+<h2>Ofertas encontradas automaticamente</h2>
+
+<div id="ofertas"></div>
+
+<script>
+
+async function buscarProduto(){
+
+let busca = document.getElementById("busca").value
+
+let resposta = await fetch("https://api.mercadolibre.com/sites/MLB/search?q=" + busca)
+
+let dados = await resposta.json()
+
+let area = document.getElementById("resultados")
+
+area.innerHTML = ""
+
+dados.results.slice(0,10).forEach(produto => {
+
+area.innerHTML += `
+
 <div class="produto">
 
-<h2>Notebook em promoção</h2>
+<img src="${produto.thumbnail}">
 
-<p>Oferta encontrada no Mercado Livre</p>
+<h3>${produto.title}</h3>
 
-<a href="https://mercadolivre.com/sec/mian7622039?url=https://www.mercadolivre.com.br" target="_blank">
+<p><b>R$ ${produto.price}</b></p>
+
+<a href="https://mercadolivre.com/sec/mian7622039?url=${produto.permalink}" target="_blank">
+
 <button>Ver oferta</button>
+
 </a>
 
 </div>
 
+`
+
+})
+
+}
+
+async function ofertasAutomaticas(){
+
+let lista = ["iphone","notebook","tv","tenis","perfume"]
+
+let area = document.getElementById("ofertas")
+
+area.innerHTML = ""
+
+for(let item of lista){
+
+let resposta = await fetch("https://api.mercadolibre.com/sites/MLB/search?q=" + item)
+
+let dados = await resposta.json()
+
+dados.results.slice(0,2).forEach(produto => {
+
+area.innerHTML += `
+
 <div class="produto">
 
-<h2>Smartphone em promoção</h2>
+<img src="${produto.thumbnail}">
 
-<p>Oferta encontrada na Amazon</p>
+<h3>${produto.title}</h3>
 
-<a href="https://www.amazon.com.br/?tag=radaroferta01-20" target="_blank">
+<p><b>R$ ${produto.price}</b></p>
+
+<a href="https://mercadolivre.com/sec/mian7622039?url=${produto.permalink}" target="_blank">
+
 <button>Ver oferta</button>
+
 </a>
 
 </div>
+
+`
+
+})
+
+}
+
+}
+
+ofertasAutomaticas()
+
+</script>
 
 </body>
 </html>
