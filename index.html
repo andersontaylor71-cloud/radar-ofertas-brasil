@@ -1,80 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marketplace Search</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        #search-form {
-            margin-bottom: 20px;
-        }
-        #search {
-            padding: 10px;
-            width: calc(100% - 120px);
-        }
-        #search-btn {
-            padding: 10px 20px;
-        }
-        #results {
-            display: flex;
-            flex-wrap: wrap;
-        }
-        .product {
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin: 10px;
-            padding: 10px;
-            flex: 1 1 calc(25% - 20px);
-            box-sizing: border-box;
-        }
-        .product img {
-            max-width: 100%;
-        }
-        .product a {
-            text-decoration: none;
-            color: #007BFF;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Radar de Ofertas Brasil</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #fff159; color: #052a4f; margin:0; }
+    header { background:#052a4f; color:#fff159; padding:15px; text-align:center; }
+    .search-bar, .filters { margin:20px; }
+    .product { border:1px solid #052a4f; padding:10px; margin:10px; background:#fff; border-radius:5px; }
+    .product img { max-width:150px; display:block; margin-bottom:10px; }
+    .filters label { margin-right:15px; }
+  </style>
 </head>
 <body>
-    <h1>Marketplace Product Search</h1>
-    <form id="search-form">
-        <input type="text" id="search" placeholder="Search for products..." required>
-        <button type="submit" id="search-btn">Search</button>
-    </form>
-    <div id="results"></div>
-    <script>
-        const form = document.getElementById('search-form');
-        const resultsDiv = document.getElementById('results');
+  <header>
+    <h1>Radar de Ofertas Brasil</h1>
+    <p>Seu buscador de preços no Mercado Livre</p>
+  </header>
 
-        form.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const searchTerm = document.getElementById('search').value;
-            const response = await fetch(`https://api.mercadolibre.com/sites/MLB/search?q=${encodeURI(searchTerm)}`);
-            const data = await response.json();
-            displayResults(data.results);
-        });
+  <div class="search-bar">
+    <input id="query" type="text" placeholder="Buscar produto..." style="width:300px; padding:5px;">
+    <button onclick="search()">Buscar</button>
+  </div>
 
-        function displayResults(products) {
-            resultsDiv.innerHTML = '';
-            products.forEach(product => {
-                const productDiv = document.createElement('div');
-                productDiv.className = 'product';
-                productDiv.innerHTML = `
-                    <img src="${product.thumbnail}" alt="${product.title}">
-                    <h2>${product.title}</h2>
-                    <p>Price: R$ ${product.price}</p>
-                    <a href="${product.permalink}?aff=your-affiliate-tracking-id" target="_blank">View Product</a>
-                `;
-                resultsDiv.appendChild(productDiv);
-            });
-        }
-    </script>
+  <div class="filters">
+    <label>Preço mínimo: <input id="minPrice" type="number"></label>
+    <label>Preço máximo: <input id="maxPrice" type="number"></label>
+    <label><input id="freeShipping" type="checkbox"> Frete grátis</label>
+    <label>Ordenar:
+      <select id="sort">
+        <option value="relevance">Relevância</option>
+        <option value="price_asc">Menor preço</option>
+        <option value="price_desc">Maior preço</option>
+      </select>
+    </label>
+  </div>
+
+  <div id="results"></div>
+
+  <script>
+    async function search() {
+      const q = document.getElementById('query').value;
+      const minPrice = document.getElementById('minPrice').value;
+      const maxPrice = document.getElementById('maxPrice').value;
+      const freeShipping = document.getElementById('freeShipping').checked;
+      const sort = document.getElementById('sort').value;
+
+      let url = `https://api.mercadolibre.com/sites/MLB/search?q=${encodeURIComponent(q)}&sort=${sort}`;
+      if (minPrice) url += `&price_from=${minPrice}`;
+      if (maxPrice) url += `&price_to=${maxPrice}`;
+      if (freeShipping) url += `&shipping_cost=free`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+      const container = document.getElementById('results');
+      container.innerHTML = "";
+
+      if (data.results.length === 0) {
+        container.innerHTML = "<p>Nenhum produto encontrado.</p>";
+        return;
+      }
+
+      data.results.forEach(item => {
+        const linkAfiliado = item.permalink + "?mian7622039"; // etiqueta de afiliado
+        container.innerHTML += `
+          <div class="product">
+            <img src="${item.thumbnail}" alt="${item.title}">
+            <h3>${item.title}</h3>
+            <p>Preço: R$${item.price}</p>
+            <a href="${linkAfiliado}" target="_blank">Ver no Mercado Livre</a>
+          </div>
+        `;
+      });
+    }
+  </script>
 </body>
 </html>
