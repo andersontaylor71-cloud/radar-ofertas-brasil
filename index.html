@@ -1,244 +1,138 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-
 <meta charset="UTF-8">
+<title>Radar de Ofertas Brasil</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Radar de Ofertas Brasil</title>
-
-<meta name="description" content="Radar de Ofertas Brasil encontra promoções da Amazon e Mercado Livre automaticamente">
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
-
 body{
-font-family:Poppins;
-background:#f5f6fa;
-color:#333;
+    font-family: Arial, Helvetica, sans-serif;
+    margin:0;
+    background:#f5f5f5;
 }
 
 header{
-background:linear-gradient(135deg,#ff7a00,#ffb347);
-padding:30px;
-text-align:center;
-color:white;
+    background:#fff159;
+    padding:15px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
 
 .logo{
-width:120px;
-border-radius:50%;
-margin-bottom:10px;
-}
-
-h1{
-font-size:28px;
+    font-weight:bold;
+    font-size:22px;
 }
 
 .search-box{
-margin-top:20px;
+    width:100%;
+    max-width:500px;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ccc;
 }
 
-.search-box input{
-padding:12px;
-width:260px;
-border:none;
-border-radius:6px;
-font-size:16px;
+.container{
+    padding:20px;
 }
 
-.search-box button{
-padding:12px 18px;
-border:none;
-border-radius:6px;
-background:#111;
-color:white;
-cursor:pointer;
-margin-left:6px;
-}
-
-.whatsapp-links{
-margin-top:15px;
-}
-
-.whatsapp-links a{
-background:#25D366;
-color:white;
-padding:8px 14px;
-border-radius:6px;
-text-decoration:none;
-margin:5px;
-display:inline-block;
-}
-
-.grid{
-
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
-
-padding:40px;
-
+.products{
+    display:grid;
+    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
 }
 
 .card{
-
-background:white;
-border-radius:10px;
-padding:15px;
-
-box-shadow:0 4px 12px rgba(0,0,0,0.08);
-
-transition:.3s;
-
+    background:white;
+    border-radius:12px;
+    padding:15px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.1);
+    transition:.3s;
 }
 
 .card:hover{
-transform:translateY(-4px);
+    transform:translateY(-5px);
 }
 
 .card img{
-width:100%;
-height:180px;
-object-fit:contain;
-}
-
-.title{
-font-size:14px;
-margin:10px 0;
+    width:100%;
+    height:180px;
+    object-fit:contain;
 }
 
 .price{
-font-size:20px;
-font-weight:700;
-color:#00a650;
+    font-size:20px;
+    color:#3483fa;
+    font-weight:bold;
 }
 
-.buy{
-display:block;
-margin-top:10px;
-background:#3483fa;
-color:white;
-padding:10px;
-border-radius:6px;
-text-align:center;
-text-decoration:none;
+.buy-btn{
+    background:#3483fa;
+    color:white;
+    border:none;
+    padding:10px;
+    width:100%;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
 }
 
-footer{
-
-background:#111;
-color:white;
-text-align:center;
-padding:20px;
-
+.buy-btn:hover{
+    background:#2968c8;
 }
-
 </style>
-
 </head>
 
 <body>
 
 <header>
-
-<img src="logo.png" class="logo">
-
-<h1>Radar de Ofertas Brasil</h1>
-
-<p>Promoções encontradas automaticamente</p>
-
-<div class="search-box">
-
-<input id="busca" placeholder="Buscar produto">
-
-<button onclick="buscar()">Buscar</button>
-
-</div>
-
-<div class="whatsapp-links">
-
-<a href="https://chat.whatsapp.com/C0lutrogA3i4h6I4Y9sVUZ" target="_blank">
-Grupo WhatsApp
-</a>
-
-<a href="https://whatsapp.com/channel/0029VbBRW91Badmj5je4ey2A" target="_blank">
-Canal Ofertas
-</a>
-
-</div>
-
+<div class="logo">Radar de Ofertas Brasil</div>
+<input class="search-box" placeholder="Buscar produtos..." id="searchInput">
 </header>
 
-<section id="produtos" class="grid"></section>
-
-<footer>
-
-Radar de Ofertas Brasil  
-Links podem gerar comissão de afiliado
-
-</footer>
+<div class="container">
+<h2>Resultados da busca</h2>
+<div class="products" id="products"></div>
+</div>
 
 <script>
 
-async function buscar(){
+const affiliateTag = "mian7622039";
 
-let termo=document.getElementById("busca").value
+async function searchProducts(query){
 
-let area=document.getElementById("produtos")
+    const response = await fetch(
+        `https://api.mercadolibre.com/sites/MLB/search?q=${query}`
+    );
 
-area.innerHTML="Buscando ofertas..."
+    const data = await response.json();
 
-let url=`https://api.mercadolibre.com/sites/MLB/search?q=${termo}`
+    const productsDiv = document.getElementById("products");
+    productsDiv.innerHTML = "";
 
-try{
+    data.results.forEach(product => {
 
-let r=await fetch(url)
+        const affiliateLink = product.permalink + "?tracking_id=" + affiliateTag;
 
-let dados=await r.json()
-
-let html=""
-
-dados.results.slice(0,24).forEach(p=>{
-
-html+=`
-
-<div class="card">
-
-<img src="${p.thumbnail.replace('I.jpg','O.jpg')}">
-
-<div class="title">${p.title}</div>
-
-<div class="price">R$ ${p.price}</div>
-
-<a class="buy" href="${p.permalink}" target="_blank">
-
-Ver oferta
-
-</a>
-
-</div>
-
-`
-
-})
-
-area.innerHTML=html
-
-}catch{
-
-area.innerHTML="Erro ao buscar produtos"
-
+        productsDiv.innerHTML += `
+        <div class="card">
+            <img src="${product.thumbnail}">
+            <h4>${product.title}</h4>
+            <div class="price">R$ ${product.price}</div>
+            <button class="buy-btn" onclick="window.open('${affiliateLink}','_blank')">
+                Comprar Agora
+            </button>
+        </div>
+        `;
+    });
 }
 
-}
+document.getElementById("searchInput").addEventListener("keyup", function(e){
+    if(e.key === "Enter"){
+        searchProducts(this.value);
+    }
+});
 
 </script>
 
