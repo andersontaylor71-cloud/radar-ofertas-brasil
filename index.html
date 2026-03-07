@@ -1,78 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Radar de Ofertas Brasil</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #fff159; color: #052a4f; margin:0; }
-    header { background:#052a4f; color:#fff159; padding:15px; text-align:center; }
-    .search-bar, .filters { margin:20px; }
-    .product { border:1px solid #052a4f; padding:10px; margin:10px; background:#fff; border-radius:5px; }
-    .product img { max-width:150px; display:block; margin-bottom:10px; }
-    .filters label { margin-right:15px; }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Radar de Ofertas Brasil</h1>
-    <p>Seu buscador de preços no Mercado Livre</p>
-  </header>
-
-  <div class="search-bar">
-    <input id="query" type="text" placeholder="Buscar produto..." style="width:300px; padding:5px;">
-    <button onclick="search()">Buscar</button>
-  </div>
-
-  <div class="filters">
-    <label>Preço mínimo: <input id="minPrice" type="number"></label>
-    <label>Preço máximo: <input id="maxPrice" type="number"></label>
-    <label><input id="freeShipping" type="checkbox"> Frete grátis</label>
-    <label>Ordenar:
-      <select id="sort">
-        <option value="relevance">Relevância</option>
-        <option value="price_asc">Menor preço</option>
-        <option value="price_desc">Maior preço</option>
-      </select>
-    </label>
-  </div>
-
-  <div id="results"></div>
-
-  <script>
-    async function search() {
-      const q = document.getElementById('query').value;
-      const minPrice = document.getElementById('minPrice').value;
-      const maxPrice = document.getElementById('maxPrice').value;
-      const freeShipping = document.getElementById('freeShipping').checked;
-      const sort = document.getElementById('sort').value;
-
-      let url = `https://api.mercadolibre.com/sites/MLB/search?q=${encodeURIComponent(q)}&sort=${sort}`;
-      if (minPrice) url += `&price_from=${minPrice}`;
-      if (maxPrice) url += `&price_to=${maxPrice}`;
-      if (freeShipping) url += `&shipping_cost=free`;
-
-      const res = await fetch(url);
-      const data = await res.json();
-      const container = document.getElementById('results');
-      container.innerHTML = "";
-
-      if (data.results.length === 0) {
-        container.innerHTML = "<p>Nenhum produto encontrado.</p>";
-        return;
-      }
-
-      data.results.forEach(item => {
-        const linkAfiliado = item.permalink + "?mian7622039"; // etiqueta de afiliado
-        container.innerHTML += `
-          <div class="product">
-            <img src="${item.thumbnail}" alt="${item.title}">
-            <h3>${item.title}</h3>
-            <p>Preço: R$${item.price}</p>
-            <a href="${linkAfiliado}" target="_blank">Ver no Mercado Livre</a>
-          </div>
-        `;
-      });
-    }
-  </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Radar de Ofertas Brasil</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
